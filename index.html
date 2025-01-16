@@ -96,7 +96,9 @@
         <p>&copy; 2025 EduSphere Digital Library</p>
     </footer>
     <script>
-        function submitQuestion() {
+        const apiKey = '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';
+
+        async function submitQuestion() {
             const question = document.getElementById('question').value;
             const responseDiv = document.getElementById('response');
             const answerContent = document.getElementById('answerContent');
@@ -109,10 +111,26 @@
             responseDiv.style.display = 'block';
             answerContent.textContent = 'Searching for the best answer to your question...';
 
-            // Simulate API call for demonstration purposes
-            setTimeout(() => {
-                answerContent.textContent = `The integration of AI in education involves using advanced technologies to provide personalized learning experiences, enhance teaching methodologies, and improve administrative efficiency.`;
-            }, 2000);
+            try {
+                const response = await fetch('http://localhost:3000/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({ question }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    answerContent.textContent = data.answer;
+                } else {
+                    answerContent.textContent = 'Sorry, we could not find an answer at this time.';
+                }
+            } catch (error) {
+                answerContent.textContent = 'An error occurred while fetching the answer.';
+                console.error(error);
+            }
         }
     </script>
 </body>
