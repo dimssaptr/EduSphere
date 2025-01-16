@@ -95,43 +95,47 @@
     <footer>
         <p>&copy; 2025 EduSphere Digital Library</p>
     </footer>
-    <script>
-        const apiKey = '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';
+<script>
+    const apiKey = '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';
 
-        async function submitQuestion() {
-            const question = document.getElementById('question').value;
-            const responseDiv = document.getElementById('response');
-            const answerContent = document.getElementById('answerContent');
+    async function submitQuestion() {
+        const question = document.getElementById('question').value;
+        const responseDiv = document.getElementById('response');
+        const answerContent = document.getElementById('answerContent');
 
-            if (question.trim() === '') {
-                alert('Please enter a question.');
-                return;
-            }
-
-            responseDiv.style.display = 'block';
-            answerContent.textContent = 'Searching for the best answer to your question...';
-
-            try {
-                const response = await fetch('http://localhost:3000/ask', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify({ question }),
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    answerContent.textContent = data.answer;
-                } else {
-                    answerContent.textContent = 'Sorry, we could not find an answer at this time.';
-                }
-            } catch (error) {
-                answerContent.textContent = 'An error occurred while fetching the answer.';
-                console.error(error);
-            }
+        if (question.trim() === '') {
+            alert('Please enter a question.');
+            return;
         }
-    </script>
+
+        responseDiv.style.display = 'block';
+        answerContent.textContent = 'Searching for the best answer to your question...';
+
+        try {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'gpt-4',
+                    messages: [{ role: 'user', content: question }]
+                }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                answerContent.textContent = data.choices[0].message.content;
+            } else {
+                const errorData = await response.json();
+                answerContent.textContent = `Error: ${errorData.error.message}`;
+            }
+        } catch (error) {
+            answerContent.textContent = 'An error occurred while fetching the answer.';
+            console.error(error);
+        }
+    }
+</script>
 </body>
 </html>
